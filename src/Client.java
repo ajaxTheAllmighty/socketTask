@@ -1,41 +1,35 @@
 
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
 
 public class Client {
     public static void main(String[] ar) {
-        int serverPort = 6666; // здесь обязательно нужно указать порт к которому привязывается сервер.
-        String address = "127.0.0.1"; // это IP-адрес компьютера, где исполняется наша серверная программа. 
-        // Здесь указан адрес того самого компьютера где будет исполняться и клиент.
-
+        int serverPort = 6666;
+        String address = "127.0.0.1";
         try {
-            System.out.println("Any of you heard of a socket with IP address " + address + " and port " + serverPort + "?");
-            Socket socket = new Socket(address, serverPort); // создаем сокет используя IP-адрес и порт сервера.
-            System.out.println("Yes! I just got hold of the program.");
-
-            // Берем входной и выходной потоки сокета, теперь можем получать и отсылать данные клиентом. 
-            InputStream sin = socket.getInputStream();
-            OutputStream sout = socket.getOutputStream();
-
-            // Конвертируем потоки в другой тип, чтоб легче обрабатывать текстовые сообщения.
-            DataInputStream in = new DataInputStream(sin);
-            DataOutputStream out = new DataOutputStream(sout);
-
-            // Создаем поток для чтения с клавиатуры.
+            Socket socket = new Socket(address, serverPort);
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            DataInputStream stringIn = new DataInputStream(socket.getInputStream());
             BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
             String line = null;
-            System.out.println("Type in something and press enter. Will send it to the server and tell ya what it thinks.");
-            System.out.println();
-
+            ArrayList results = new ArrayList();
             while (true) {
-                line = keyboard.readLine(); // ждем пока пользователь введет что-то и нажмет кнопку Enter.
+                line = keyboard.readLine();
                 System.out.println("Sending this line to the server...");
-                out.writeUTF(line); // отсылаем введенную строку текста серверу.
-                out.flush(); // заставляем поток закончить передачу данных.
-                line = in.readUTF(); // ждем пока сервер отошлет строку текста.
-                System.out.println("The server was very polite. It sent me this : " + line);
-                System.out.println("Looks like the server is pleased with us. Go ahead and enter more lines.");
-                System.out.println();
+                out.writeUTF(line);
+                out.flush();
+                Object object = in.readObject();
+                results = (ArrayList) object;
+                System.out.println("ID\t title\t year\t genre\t duration");
+                for (int i =0; i < results.size();i++){
+                    System.out.println(results.get(0));//id
+                    System.out.println(results.get(1));//title
+                    System.out.println(results.get(2));//year
+                    System.out.println(results.get(3));//duration
+                }
+                System.out.println(stringIn.readUTF());
             }
         } catch (Exception x) {
             x.printStackTrace();

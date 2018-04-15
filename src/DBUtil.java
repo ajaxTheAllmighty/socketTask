@@ -26,7 +26,6 @@ public class DBUtil {
             results[i].add(movies.getInt("id"));            //
             results[i].add(movies.getString("title"));      //
             results[i].add(movies.getString("year"));       //add values into array of ArrayList
-            results[i].add(movies.getInt("genre"));         //
             results[i].add(movies.getString("duration"));   //
             i++;
         }
@@ -35,7 +34,7 @@ public class DBUtil {
     public static ArrayList[] getData() throws SQLException {
         int rows = 0;
         int i = 0;
-        PreparedStatement statement = connection.prepareStatement("SELECT * FROM movies where id < ", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM movies", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
         ResultSet movies = statement.executeQuery();
         if (movies.last()) {              //
             rows = movies.getRow();     //get total records
@@ -47,7 +46,6 @@ public class DBUtil {
             results[i].add(movies.getInt("id"));            //
             results[i].add(movies.getString("title"));      //
             results[i].add(movies.getString("year"));       //add values into array of ArrayList
-            results[i].add(movies.getInt("genre"));         //
             results[i].add(movies.getString("duration"));   //
             i++;
         }

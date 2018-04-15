@@ -3,41 +3,23 @@ import java.io.*;
 
 public class Server {
     public static void main(String[] ar)    {
-        int port = 6666; // случайный порт (может быть любое число от 1025 до 65535)
+        int port = 6666;
         try {
-            ServerSocket ss = new ServerSocket(port); // создаем сокет сервера и привязываем его к вышеуказанному порту
+            ServerSocket ss = new ServerSocket(port);
             System.out.println("Waiting for a client...");
-            Socket socket = ss.accept(); // заставляем сервер ждать подключений и выводим сообщение когда кто-то связался с сервером
-            System.out.println("Got a client :) ... Finally, someone saw me through all the cover!");
-            System.out.println();
-            // Берем входной и выходной потоки сокета, теперь можем получать и отсылать данные клиенту.
-            InputStream sin = socket.getInputStream();
-            OutputStream sout = socket.getOutputStream();
-            // Конвертируем потоки в другой тип, чтоб легче обрабатывать текстовые сообщения.
-            DataInputStream in = new DataInputStream(sin);
-            DataOutputStream out = new DataOutputStream(sout);
+            Socket socket = ss.accept();
+            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            DataInputStream in = new DataInputStream(socket.getInputStream());
             String line = null;
             while(true) {
                 line = in.readUTF();
-                if(line.equals("all")){
-                    out.writeUTF("id \t title \t year \t duration\n");
-                    for (int i =0;i<DBUtil.getData().length; i++){
-                        out.writeUTF(DBUtil.getData()[i].get(0)+" ");//id
-                        out.writeUTF(DBUtil.getData()[i].get(1)+" ");//title
-                        out.writeUTF(DBUtil.getData()[i].get(2)+" ");//year
-                        out.writeUTF((String)DBUtil.getData()[i].get(4));//duration
-                    }
+                if(line.equals("all")){ // SELECT *
+                    out.writeObject(DBUtil.getData());
                 }
-                else if (line.matches("\\\\d+")){
-                    out.writeUTF("id \t title \t year \t duration\n");
-                    for (int i =0;i<DBUtil.getData().length; i++){
-                        out.writeUTF(DBUtil.getData(Integer.parseInt(line))[i].get(0)+" ");//id
-                        out.writeUTF(DBUtil.getData(Integer.parseInt(line))[i].get(1)+" ");//title
-                        out.writeUTF(DBUtil.getData(Integer.parseInt(line))[i].get(2)+" ");//year
-                        out.writeUTF((String)DBUtil.getData(Integer.parseInt(line))[i].get(4));//duration
-                    }
+                else if (line.matches("\\\\d+")){ // SELECT exact count
+                    out.writeObject(DBUtil.getData(Integer.parseInt(line)));
                 }
-                else{
+                else{   //return same text
                     out.writeUTF("You sent "+line);
                 }
             }
